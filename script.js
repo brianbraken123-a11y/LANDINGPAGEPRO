@@ -1,7 +1,6 @@
 (() => {
   'use strict';
   const products = {
-    starter: ['Landing Page Starter', 99000, true], profesional: ['Landing Page Profesional', 189000, true],
     cv: ['CV Profesional', 12000, true], foto: ['Edit Foto Background Formal', 5000],
     portofolio: ['Paket Lengkap CV + Portofolio', 99000], logo: ['Jasa Pembuatan Logo', 35000],
     spanduk: ['Jasa Desain Spanduk', 50000], menu: ['Jasa Pembuatan Menu', 35000]
@@ -55,7 +54,7 @@
     document.querySelector('#estimated-total').textContent = money(estimated);
     document.querySelector('#cart-total').textContent = money(fixed + estimated);
     const checkout = document.querySelector('#checkout'); checkout.hidden = !count;
-    const message = ['Halo Fira, aku ingin konfirmasi pesanan Thinkable.pro:', ...lines, '', `Subtotal harga tetap: ${money(fixed)}`, `Subtotal estimasi mulai dari: ${money(estimated)}`, `Total estimasi: ${money(fixed + estimated)}`, '', 'Metode pembayaran: mohon konfirmasi metode yang tersedia via WhatsApp. Apakah transfer bank atau QRIS tersedia? Mohon kirim detail setelah konfirmasi.', 'Harga CV mulai dari dan paket landing page bergantung cakupan. Saya perlu menyetujui penawaran akhir dan detail pembayaran di chat sebelum membayar.'].join('\n');
+    const message = ['Halo Fira, aku ingin konfirmasi pesanan Thinkable.pro:', ...lines, '', `Subtotal harga tetap: ${money(fixed)}`, `Subtotal estimasi mulai dari: ${money(estimated)}`, `Total estimasi: ${money(fixed + estimated)}`, '', 'Metode pembayaran: mohon konfirmasi metode yang tersedia via WhatsApp. Apakah transfer bank atau QRIS tersedia? Mohon kirim detail setelah konfirmasi.', 'Harga CV mulai dari dan biaya akhir bergantung cakupan. Saya perlu menyetujui penawaran akhir dan detail pembayaran di chat sebelum membayar.'].join('\n');
     checkout.href = 'https://wa.me/6287895582152?text=' + encodeURIComponent(message);
     if (focusId) {
       const target = [...items.querySelectorAll('button')].find(el => el.dataset.id === focusId && el.textContent === action && !el.disabled);
@@ -73,10 +72,113 @@
     });
   });
   render();
-  if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const details = {
+  "cv": {
+    "title": "CV Profesional",
+    "price": "Mulai dari Rp12.000",
+    "image": "assets/catalog/01_cv_profesional.webp",
+    "description": "CV profesional untuk memperkenalkan profil dan pengalamanmu. Harga akhir mengikuti kebutuhan yang disepakati.",
+    "size": [
+      418,
+      418
+    ]
+  },
+  "foto": {
+    "title": "Edit Foto Background Formal",
+    "price": "Rp5.000",
+    "image": "assets/catalog/02_edit_foto_formal.webp",
+    "description": "Penyesuaian background foto untuk kebutuhan tampilan formal.",
+    "size": [
+      418,
+      418
+    ]
+  },
+  "portofolio": {
+    "title": "Paket Lengkap CV + Portofolio",
+    "price": "Rp99.000",
+    "image": "assets/catalog/03_cv_portofolio.webp",
+    "description": "Paket CV dan portofolio online untuk menampilkan profil serta karya pilihanmu.",
+    "size": [
+      418,
+      418
+    ]
+  },
+  "logo": {
+    "title": "Jasa Pembuatan Logo",
+    "price": "Rp35.000",
+    "image": "assets/catalog/04_desain_logo.webp",
+    "description": "Desain logo untuk identitas bisnis atau personal. Diskusikan arah visual dan kebutuhan sebelum pengerjaan.",
+    "size": [
+      418,
+      418
+    ]
+  },
+  "spanduk": {
+    "title": "Jasa Desain Spanduk",
+    "price": "Rp50.000",
+    "image": "assets/catalog/05_desain_spanduk.webp",
+    "description": "Desain spanduk untuk materi promosi. Siapkan isi, ukuran, dan kebutuhan desain untuk dikonfirmasi.",
+    "size": [
+      418,
+      418
+    ]
+  },
+  "menu": {
+    "title": "Jasa Pembuatan Menu",
+    "price": "Rp35.000",
+    "image": "assets/catalog/06_desain_menu.webp",
+    "description": "Desain menu untuk kafe, resto, dan usaha kuliner. Materi serta daftar harga berasal dari pemilik usaha.",
+    "size": [
+      418,
+      418
+    ]
+  }
+};
+  const dialog = document.querySelector('#service-dialog');
+  let trigger, selected;
+  document.querySelectorAll('[data-detail]').forEach(button => {
+    button.hidden = false;
+    button.addEventListener('click', () => {
+      selected = button.dataset.detail;
+      const detail = details[selected];
+      trigger = button;
+      document.querySelector('#detail-title').textContent = detail.title;
+      document.querySelector('#detail-price').textContent = detail.price;
+      document.querySelector('#detail-description').textContent = detail.description;
+      const img = document.querySelector('#detail-image');
+      img.src = detail.image; img.alt = 'Poster ' + detail.title;
+      img.width = detail.size[0]; img.height = detail.size[1];
+      document.querySelector('#detail-status').textContent = '';
+      dialog.showModal();
+    });
+  });
+  document.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => {
+    const rect = dialog.getBoundingClientRect();
+    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close();
+  });
+  dialog.addEventListener('close', () => trigger?.focus());
+  document.querySelector('#detail-add').addEventListener('click', () => {
+    document.querySelector('[data-product="' + selected + '"]').click();
+    document.querySelector('#detail-status').textContent = status.textContent;
+  });
+  document.querySelector('#detail-cart').addEventListener('click', () => {
+    trigger = null;
+    dialog.close();
+    document.querySelector('#cart-title').focus();
+  });
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if ('IntersectionObserver' in window && !motion.matches) {
+    const targets = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (entry.isIntersecting) { entry.target.classList.add('revealed'); observer.unobserve(entry.target); }
-    }), { threshold: 0.08 });
-    document.querySelectorAll('.section-heading, .catalog-card, .review-state').forEach(el => observer.observe(el));
+      if (entry.isIntersecting) {
+        entry.target.classList.remove('reveal-pending');
+        observer.unobserve(entry.target);
+      }
+    }), { threshold: 0.06 });
+    targets.forEach(el => { el.classList.add('reveal-pending'); observer.observe(el); });
+    motion.addEventListener('change', () => {
+      if (motion.matches) { targets.forEach(el => el.classList.remove('reveal-pending')); observer.disconnect(); }
+    });
   }
 })();
